@@ -721,7 +721,7 @@ CREATE TABLE `estimates` (
   `calculate_tax` enum('After Discount','Before Discount') DEFAULT 'After Discount',
   `description` text DEFAULT NULL,
   `note` text DEFAULT NULL,
-  `terms` text DEFAULT 'Thank you for your business.',
+  `terms` text ,
   `discount` decimal(15,2) DEFAULT 0.00,
   `discount_type` enum('%','fixed') DEFAULT '%',
   `sub_total` decimal(15,2) DEFAULT 0.00,
@@ -1005,7 +1005,7 @@ CREATE TABLE `expenses` (
   `second_tax` varchar(50) DEFAULT NULL,
   `is_recurring` tinyint(1) DEFAULT 0,
   `note` text DEFAULT NULL,
-  `terms` text DEFAULT 'Thank you for your business.',
+  `terms` text ,
   `discount` decimal(15,2) DEFAULT 0.00,
   `discount_type` enum('%','fixed') DEFAULT '%',
   `sub_total` decimal(15,2) DEFAULT 0.00,
@@ -1105,7 +1105,7 @@ CREATE TABLE `invoices` (
   `shipping_address` text DEFAULT NULL,
   `generated_by` varchar(100) DEFAULT 'Worksuite',
   `note` text DEFAULT NULL,
-  `terms` text DEFAULT 'Thank you for your business.',
+  `terms` text ,
   `discount` decimal(15,2) DEFAULT 0.00,
   `discount_type` enum('%','fixed') DEFAULT '%',
   `sub_total` decimal(15,2) DEFAULT 0.00,
@@ -1598,10 +1598,10 @@ CREATE TABLE `orders` (
   `description` text DEFAULT NULL,
   `amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `status` enum('New','Pending','Processing','Completed','Cancelled','Shipped','Delivered') NOT NULL DEFAULT 'New',
-  `order_date` date DEFAULT curdate(),
+  `order_date` date DEFAULT NULL,
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

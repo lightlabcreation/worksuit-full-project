@@ -571,27 +571,34 @@ const runAutoMigrations = async () => {
   }
 };
 
-// Test connection and run migrations
-pool.getConnection()
-  .then(async connection => {
-    console.log('✅ Database connected successfully');
-    connection.release();
-    // Run auto-migrations after successful connection
+// Test connection with retry logic
+const connectWithRetry = async (retries = 10, delay = 5000) => {
+  for (let i = 0; i < retries; i++) {
     try {
-      await runAutoMigrations();
-    } catch (migrationError) {
-      console.error('⚠️ Migration error (non-fatal, server will continue):', migrationError.message);
-      console.error('Migration error stack:', migrationError.stack);
-      // Don't throw - allow server to start even if migrations fail
+      const connection = await pool.getConnection();
+      console.log('✅ Database connected successfully');
+      connection.release();
+      // Run auto-migrations after successful connection
+      try {
+        await runAutoMigrations();
+      } catch (migrationError) {
+        console.error('⚠️ Migration error (non-fatal, server will continue):', migrationError.message);
+      }
+      return;
+    } catch (err) {
+      console.log(`⏳ Database connection attempt ${i + 1}/${retries} failed: ${err.message}`);
+      if (i < retries - 1) {
+        console.log(`   Retrying in ${delay/1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
     }
-  })
-  .catch(err => {
-    console.error('❌ Database connection error:', err.message);
-    console.error('Please ensure MySQL is running and database exists');
-    console.error('Server cannot start without database connection');
-    // Exit with error code - server should not run without database
-    process.exit(1);
-  });
+  }
+  console.error('❌ Database connection failed after all retries');
+  console.error('Please ensure MySQL is running and database exists');
+  process.exit(1);
+};
+
+connectWithRetry();
 
 module.exports = pool;
 
